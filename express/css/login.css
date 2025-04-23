@@ -1,0 +1,14 @@
+.container {
+    width: 400px;
+    height: 200px;
+}
+
+.button {
+    background-color: aqua;
+    color : white;
+    border: none;
+}
+
+.button:hover {
+    background-color: blue;
+}
