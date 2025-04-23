@@ -9,6 +9,8 @@ router.post("/login", async(req, res) => {
       let [user] = await db.query(query, [userId, password]);
       let result = {};
       if(user.length > 0) {
+        
+
         result = {
           message : "로그인 성공!",
           user : user[0]

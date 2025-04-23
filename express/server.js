@@ -5,9 +5,24 @@ const db = require("./db");
 const cors = require('cors');
 const productRouter = require('./routes/product');
 const userRouter = require('./routes/user');
+const session = require('express-session');
 
 app.use(express.json())
-app.use(cors())
+app.use(cors({
+  origin : "http://localhost:5501",
+  credentials : true
+}))
+
+app.use(session({
+  secret : 'test1234',
+  resave : false,
+  saveUninitialized : false,
+  cookie : {
+    httpOnly : true,
+    secure : false,
+    maxAge : 1000 * 60 * 30
+  }
+}))
 
 app.use("/product", productRouter)
 app.use("/user", userRouter)
