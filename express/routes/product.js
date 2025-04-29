@@ -1,11 +1,39 @@
 const express = require('express');
 const db = require('../db');
+// 1. 패키지 추가
+const multer = require('multer');
 const router = express.Router();
+// const authMiddleware = require('/authMiddleware');
+
+// 2. 저장 경로 및 파일명
+const storage = multer.diskStorage({
+    destination: (req, file, cb) => cb(null, 'uploads/'),
+    filename: (req, file, cb) => cb(null, Date.now() + '-' + file.originalname)
+});
+const upload = multer({ storage });
+
+router.post('/upload', upload.single('file'), async (req, res) => {
+    let {productId} = req.body;
+    const filename = req.file.filename; 
+    const destination = req.file.destination; 
+    try{
+        let query = "INSERT INTO TBL_PRODUCT_FILE VALUES(NULL, ?, ?, ?)";
+        let result = await db.query(query, [productId, filename, destination]);
+        res.json({
+            message : "result",
+            result : result
+        });
+    } catch(err){
+        console.log("에러 발생!");
+        res.status(500).send("Server Error");
+    }
+});
+
 
 router.get("/", async (req, res) => {
-    let {pageSize, offset} = req.query;
+    // let {pageSize, offset} = req.query;
     try{
-        let sql = "SELECT * FROM TBL_PRODUCT LIMIT ? OFFSET ?";
+        let sql = "SELECT * FROM TBL_PRODUCT";
         let [list] = await db.query(sql, [parseInt(pageSize), parseInt(offset)]);
         let [count] = await db.query("SELECT COUNT(*) AS cnt FROM TBL_PRODUCT");
         res.json({
@@ -40,20 +68,21 @@ router.post("/", async (req, res) => {
     try{
         let query = "INSERT INTO TBL_PRODUCT VALUES(NULL, ?, ?, ?, ?, ?, 'Y', NOW(), NOW())";
         let result = await db.query(query, [productName, description, price, stock, category]);
+        console.log("result==>", result);
         res.json({
             message : "success",
-            result : result
+            result : result[0]
         });
     }catch(err){
         console.log("에러 발생!");
         res.status(500).send("Server Error");
     }
 })
-
-router.delete("/:productId", async (req, res) => {
+/*
+router.delete("/:productId", authMiddleware, async (req, res) => {
     let { productId } = req.params;
     try{
-        let result = await db.query("DELETE FROM TBL_PRODUCT");
+        let result = await db.query("DELETE FROM TBL_PRODUCT WHERE PRODUCTID = " + productId);
         console.log("result ==> ", result);
         res.json({
             message : "success",
@@ -64,7 +93,7 @@ router.delete("/:productId", async (req, res) => {
         res.status(500).send("Server Error");
     }
 })
-
+*/
 router.put("/:productId", async (req, res) => {
     let { productId } = req.params;
     let {productName, description, price, stock, category} = req.body;
