@@ -1,15 +1,33 @@
 const express = require('express');
 const db = require('../db');
 const router = express.Router();
+const multer = require('multer');
+
+const storage = multer.diskStorage({
+    destination: (req, file, cb) => cb(null, 'uploads/'),
+    filename: (req, file, cb) => cb(null, Date.now() + '-' + file.originalname)
+});
+const upload = multer({ storage });
 
 router.get("/", async (req, res) => {
+    let {userId} = req.query;
 
     try{
+        let imgQuery = "SELECT * FROM TBL_FEED F INNER JOIN TBL_FEED_IMG I ON F.ID = I.FEEDID";
         let query = "SELECT * FROM TBL_FEED";
+
+        if(userId) {
+            query += " WHERE USERID = '" + userId + "'";
+            imgQuery += " WHERE USERID = '" + userId + "'";
+        }   
+            
+
         let [list] = await db.query(query);
+        let [imgList] = await db.query(imgQuery);
         res.json({
             message : "result",
-            list : list
+            list : list,
+            imgList : imgList
         })
     } catch(err) {
         console.log("에러 발생!");
@@ -74,7 +92,36 @@ router.post("/", async (req, res) => {
         console.log(result);
         res.json({
             message : "등록 완료",
-            result : result
+            result : result[0]
+        })
+    } catch(err) {
+        console.log("에러 발생!");
+        res.status(500).send("Server Error");
+    }
+})
+
+router.post("/upload", upload.array('file'), async (req, res) => {
+    let {feedId} = req.body;
+    const files = req.files;
+/*
+    req.files
+    const filename = req.file.filename;
+    const filePath = req.file.destination;
+*/
+
+    try{
+        let results = [];
+        for(let file of files) {
+            let filename = file.filename;
+            let filePath = file.path;
+
+            let query = "INSERT INTO TBL_FEED_IMG VALUES(null, ?, ?, ?)";
+            let result = await db.query(query, [feedId, filename, filePath]);
+            results.push(result);
+        }
+        res.json({
+            message : "등록 완료",
+            result : results
         })
     } catch(err) {
         console.log("에러 발생!");

@@ -2,6 +2,7 @@ const express = require('express');
 const db = require('../db');
 const bcrypt = require('bcrypt');
 const router = express.Router();
+const authMiddleware = require('../auth');
 
 router.post("/", async (req, res) => {
     let {userId, pwd} = req.body;
@@ -77,6 +78,21 @@ router.post("/join", async (req, res) => {
         let [user] = await db.query(query, [userId, hashPwd, name, addr, phone]);
   
     }catch(err){
+        console.log("에러 발생!");
+        res.status(500).send("Server Error");
+    }
+})
+
+router.delete("/:id", authMiddleware, async (req, res) => {
+    let {userId} = req.params;
+    try {
+        let result = await db.query("DELETE FROM TBL_FEED WHERE USERID = " + userId);
+        console.log("result ==> ", result);
+        res.json({
+            message : "success",
+            result : result
+        });
+    } catch (err) {
         console.log("에러 발생!");
         res.status(500).send("Server Error");
     }

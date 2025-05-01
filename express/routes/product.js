@@ -3,7 +3,7 @@ const db = require('../db');
 // 1. 패키지 추가
 const multer = require('multer');
 const router = express.Router();
-// const authMiddleware = require('/authMiddleware');
+const authMiddleware = require('/authMiddleware');
 
 // 2. 저장 경로 및 파일명
 const storage = multer.diskStorage({
@@ -78,7 +78,7 @@ router.post("/", async (req, res) => {
         res.status(500).send("Server Error");
     }
 })
-/*
+
 router.delete("/:productId", authMiddleware, async (req, res) => {
     let { productId } = req.params;
     try{
@@ -93,7 +93,7 @@ router.delete("/:productId", authMiddleware, async (req, res) => {
         res.status(500).send("Server Error");
     }
 })
-*/
+
 router.put("/:productId", async (req, res) => {
     let { productId } = req.params;
     let {productName, description, price, stock, category} = req.body;
