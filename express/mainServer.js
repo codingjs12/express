@@ -6,6 +6,7 @@ const feedRouter = require('./routes/feed');
 const loginRouter = require('./routes/sns/login');
 const path = require('path');
 const memberRouter = require('./routes/sns/member');
+const snsRouter = require('./routes/sns/feed');
 
 const app = express();
 app.use(express.json());
@@ -21,6 +22,8 @@ app.use("/feed", feedRouter);
 
 app.use("/login", loginRouter);
 app.use("/member", memberRouter);
+app.use("/sns", snsRouter);
+
 
 app.listen(3000, ()=>{
     console.log("서버 실행 중!"); 

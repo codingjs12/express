@@ -85,17 +85,17 @@ router.delete("/:id", async (req, res) => {
 })
 
 router.post("/", async (req, res) => {
-    let {userId, content} = req.body;
+    let {email, title, content} = req.body;
     try{
-        let query = "INSERT INTO TBL_FEED VALUES(null, ?, ?, NOW())";
-        let result = await db.query(query, [userId, content]);
+        let query = "INSERT INTO TBL_FEED VALUES(null, ?, ?, ?, NOW())";
+        let result = await db.query(query, [email, title, content]);
         console.log(result);
         res.json({
             message : "등록 완료",
             result : result[0]
         })
     } catch(err) {
-        console.log("에러 발생!");
+        console.log(err.message);
         res.status(500).send("Server Error");
     }
 })
